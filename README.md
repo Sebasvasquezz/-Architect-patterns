@@ -49,7 +49,7 @@ You need to install the following tools and configure their dependencies:
     git version 2.25.1
     ```
 
-### Installing
+## Installing
 
 1. Clone the repository and navigate into the project directory:
     ```sh
@@ -76,8 +76,47 @@ You need to install the following tools and configure their dependencies:
     The application will start, and you can access the web interface at `http://localhost:8080`.
 
     ![Execution in local](images/execution.gif)
-### Deploiment in AWS
 
+## Deploiment in AWS
+In order to deploy the project on AWS with the requested architecture, it is necessary to make some changes to the code:
+* application.properties:
+![Changes application.properties](images/appProp.png)
+* Property Controller:
+![Changes  Property Controller](images/propController.png)
+### Install MySQL:
+* Install package repository:
+    ```sh
+    sudo yum install https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+    ```
+*  Manually import the MySQL GPG key:
+    ```sh
+    sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+    ```
+* Install MySQL:
+    ```sh
+    sudo yum install mysql-community-server -y
+    ```
+* Start service:
+    ```sh
+    sudo systemctl start mysqld
+    ```
+* Our user is created and given permissions, using MySQL commands and the remote access to our database is modified:
+    ![Remote access](images/remoteAccess.png)
+
+* We upload the jar of our application to the other EC2 instance mediante sftp:
+    ![Upload jar](images/jar.png)
+
+* Install java:
+    ```sh
+    sudo yum install java-17-amazon-corretto -y
+    ```
+* Execute the app with the command:
+    ```sh
+    java -jar patrones-0.0.1-SNAPSHOT
+    ```
+    The application will start, and you can access the web interface at `http://54.145.132.193:8080/`(The link may change over time).
+
+    ![Execution in AWS](images/aws.gif)
 ## Usage
 
 The user interface allows users to manage property records. Below are the key features:
