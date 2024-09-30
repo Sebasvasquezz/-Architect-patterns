@@ -1,85 +1,119 @@
-const apiUrl = 'http://localhost:8080/api/properties'; // Cambia esto según tu configuración
+const apiBaseUrl = 'http://localhost:8080/properties'; 
+let selectedPropertyId = null;
 
-// Función para cargar propiedades desde el backend
-async function loadProperties() {
-    const response = await fetch(apiUrl);
-    const properties = await response.json();
-    const propertyList = document.getElementById('propertyList');
-    propertyList.innerHTML = ''; // Limpiar la lista antes de cargar nuevas propiedades
-
-    properties.forEach(property => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <strong>${property.address}</strong>
-            <span>Precio: $${property.price}, Tamaño: ${property.size} m²</span>
-            <button onclick="deleteProperty(${property.id})">Eliminar</button>
-            <button onclick="showUpdateForm(${property.id}, '${property.address}', ${property.price}, ${property.size}, '${property.description}')">Actualizar</button>
-        `;
-        propertyList.appendChild(li);
-    });
-}
-
-// Función para agregar una nueva propiedad
-document.getElementById('propertyForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
-
+async function createProperty() {
     const property = {
         address: document.getElementById('address').value,
-        price: parseFloat(document.getElementById('price').value),
-        size: parseFloat(document.getElementById('size').value),
+        price: document.getElementById('price').value,
+        size: document.getElementById('size').value,
         description: document.getElementById('description').value
     };
 
-    await fetch(apiUrl, {
+    const response = await fetch(apiBaseUrl, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(property)
+        body: JSON.stringify(property),
     });
 
-    document.getElementById('propertyForm').reset(); // Reiniciar el formulario
-    loadProperties(); // Volver a cargar la lista de propiedades
-});
-
-// Función para eliminar una propiedad
-async function deleteProperty(id) {
-    await fetch(`${apiUrl}/${id}`, {
-        method: 'DELETE'
-    });
-    loadProperties(); // Volver a cargar la lista de propiedades
+    if (response.ok) {
+        alert('Propiedad creada exitosamente');
+        clearForm();
+        listProperties();
+    } else {
+        alert('Error al crear la propiedad');
+    }
 }
 
-// Función para mostrar el formulario de actualización
-function showUpdateForm(id, address, price, size, description) {
-    document.getElementById('address').value = address;
-    document.getElementById('price').value = price;
-    document.getElementById('size').value = size;
-    document.getElementById('description').value = description;
+async function listProperties() {
+    const response = await fetch(apiBaseUrl);
+    const properties = await response.json();
+    const propertyTableBody = document.querySelector('#propertyTable tbody');
+    propertyTableBody.innerHTML = '';
+    properties.forEach(property => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${property.id}</td>
+            <td>${property.address}</td>
+            <td>$${property.price}</td>
+            <td>${property.size} m²</td>
+            <td>${property.description}</td>
+            <td>
+                <button onclick="editProperty(${property.id})">Editar</button>
+                <button onclick="deleteProperty(${property.id})">Eliminar</button>
+            </td>
+        `;
+        propertyTableBody.appendChild(row);
+    });
+}
 
-    const form = document.getElementById('propertyForm');
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-
-        const updatedProperty = {
-            address: document.getElementById('address').value,
-            price: parseFloat(document.getElementById('price').value),
-            size: parseFloat(document.getElementById('size').value),
-            description: document.getElementById('description').value
-        };
-
-        await fetch(`${apiUrl}/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedProperty)
+async function deleteProperty(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta propiedad?')) {
+        const response = await fetch(`${apiBaseUrl}/${id}`, {
+            method: 'DELETE'
         });
 
-        form.reset(); // Reiniciar el formulario
-        loadProperties(); // Volver a cargar la lista de propiedades
-    };
+        if (response.ok) {
+            alert('Propiedad eliminada exitosamente');
+            listProperties();
+        } else {
+            alert('Error al eliminar la propiedad');
+        }
+    }
 }
 
-// Cargar las propiedades al iniciar la aplicación
-loadProperties();
+async function editProperty(id) {
+    const response = await fetch(`${apiBaseUrl}/${id}`);
+    const property = await response.json();
+    document.getElementById('address').value = property.address;
+    document.getElementById('price').value = property.price;
+    document.getElementById('size').value = property.size;
+    document.getElementById('description').value = property.description;
+
+    selectedPropertyId = id;
+
+    document.getElementById('addButton').style.display = 'none';
+    document.getElementById('updateButton').style.display = 'block';
+}
+
+async function updateProperty() {
+    if (selectedPropertyId === null) return;
+
+    const property = {
+        address: document.getElementById('address').value,
+        price: document.getElementById('price').value,
+        size: document.getElementById('size').value,
+        description: document.getElementById('description').value
+    };
+
+    const response = await fetch(`${apiBaseUrl}/${selectedPropertyId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(property),
+    });
+
+    if (response.ok) {
+        alert('Propiedad actualizada exitosamente');
+        clearForm();
+        listProperties();
+        selectedPropertyId = null;
+
+        document.getElementById('addButton').style.display = 'block';
+        document.getElementById('updateButton').style.display = 'none';
+    } else {
+        alert('Error al actualizar la propiedad');
+    }
+}
+
+function clearForm() {
+    document.getElementById('propertyForm').reset();
+    selectedPropertyId = null;
+
+    document.getElementById('addButton').style.display = 'block';
+    document.getElementById('updateButton').style.display = 'none';
+}
+
+window.onload = listProperties;

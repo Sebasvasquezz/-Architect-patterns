@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,18 +8,54 @@
 </head>
 <body>
     <div class="container">
-        <h1>Gestión de Propiedades</h1>
+        <header>
+            <h1>Gestión de Propiedades Inmobiliarias</h1>
+        </header>
 
-        <form id="propertyForm">
-            <input type="text" id="address" placeholder="Dirección" required>
-            <input type="number" id="price" placeholder="Precio" required min="0" step="0.01">
-            <input type="number" id="size" placeholder="Tamaño (m²)" required min="0" step="0.01">
-            <textarea id="description" placeholder="Descripción" required></textarea>
-            <button type="submit">Agregar Propiedad</button>
-        </form>
+        <section class="form-section">
+            <form id="propertyForm">
+                <div class="form-group">
+                    <label for="address">Dirección:</label>
+                    <input type="text" id="address" required>
+                </div>
 
-        <h2>Lista de Propiedades</h2>
-        <ul id="propertyList"></ul>
+                <div class="form-group">
+                    <label for="price">Precio:</label>
+                    <input type="number" id="price" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">Tamaño (m²):</label>
+                    <input type="number" id="size" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descripción:</label>
+                    <input type="text" id="description">
+                </div>
+
+                <button type="button" onclick="createProperty()" id="addButton">Agregar Propiedad</button>
+                <button type="button" onclick="updateProperty()" id="updateButton" style="display: none;">Actualizar Propiedad</button>
+            </form>
+        </section>
+
+        <section class="property-list-section">
+            <h2>Lista de Propiedades</h2>
+            <table id="propertyTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Dirección</th>
+                        <th>Precio</th>
+                        <th>Tamaño (m²)</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </section>
     </div>
 
     <script src="script.js"></script>
