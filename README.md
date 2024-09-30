@@ -83,7 +83,7 @@ In order to deploy the project on AWS with the requested architecture, it is nec
 ![Changes application.properties](images/appProp.png)
 * Property Controller:
 ![Changes  Property Controller](images/propController.png)
-### Install MySQL:
+### Install and run MySQL:
 * Install package repository:
     ```sh
     sudo yum install https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
@@ -102,8 +102,12 @@ In order to deploy the project on AWS with the requested architecture, it is nec
     ```
 * Our user is created and given permissions, using MySQL commands and the remote access to our database is modified:
     ![Remote access](images/remoteAccess.png)
-
-* We upload the jar of our application to the other EC2 instance mediante sftp:
+* Restart the service:
+    ```sh
+    sudo systemctl restart mysqld
+    ```
+### Run the app:
+* We upload the jar of our application to the other EC2 instance using sftp:
     ![Upload jar](images/jar.png)
 
 * Install java:
